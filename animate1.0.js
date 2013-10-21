@@ -213,7 +213,7 @@
  		 * 重置动画对象，清空关键帧
  		 */
  		reset:function(){
- 			this.keyframes = new Array(10);
+ 			this.keyframes = [];
  		},
 
 
