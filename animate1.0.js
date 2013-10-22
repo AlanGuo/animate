@@ -385,9 +385,10 @@
 
 						setValue.bind(_this)(pass/maxDuration);
 
-						if(pass < maxDuration)
+						if(pass < maxDuration){
 							if(!_this._needStop)
 								requestAnimationFrame(nextFrame);
+						}
 						else{
 							setValue.bind(_this)(-1);
 							animationEnd.bind(_this)();
