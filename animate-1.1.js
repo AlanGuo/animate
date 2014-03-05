@@ -140,6 +140,7 @@
  			opts = opts || {};
  			this.elem = elem;
  			this.options = extend({},opts);
+ 			this.events = {};
  			this.keyframes = [];
  			this.keyframesString =[];
  			this.uniqId = ++unid;
@@ -172,6 +173,7 @@
  		 */
  		 setElement:function(elem){
  		 	this.elem = elem;
+ 		 	return this;
  		 },
 
 
@@ -214,6 +216,11 @@
  		 */
  		reset:function(){
  			this.keyframes = [];
+ 			this.elem.style[prefixStyle("animation")] = "";
+ 			this.elem.style[prefixStyle("transitionProperty")] = "";
+			this.elem.style[prefixStyle("transitionTimingFunction")] = "";
+			this.elem.style[prefixStyle("transitionDuration")] = "";
+ 			return this;
  		},
 
 
@@ -221,7 +228,10 @@
  		 * 开始执行动画
  		 */
  		start:function(opt){
- 			opt = extend({timing:"linear"},opt);
+ 			var self = this;
+ 			opt = this._startOpt || extend({timing:"linear"},opt);
+ 			this._startOpt = opt;
+
  			var object2String=function (obj) {
 				var str = "{",j=0;
 				for(var i in obj){
@@ -253,7 +263,7 @@
 
 				//结束事件
 				bindEvt(this.elem,prefixStyle("animationEnd"),function(evt){
-					opt.onAnimationEnd && opt.onAnimationEnd();
+					self.events.animationEnd && self.events.animationEnd.bind(self)(evt);
 				});
  			}
 
@@ -297,23 +307,29 @@
 					},100)
 				}
 
+				//只有一个关键帧
+				if(this.keyframes.length==1){
+					var frame1 = this.keyframes[0];
+					if(frame1.point>0){
+						this.keyframes.unshift({point:0});
+					}
+				}
 				if(this.keyframes.length>1){
 					var frame1 = this.keyframes[0];
 					var frame2 = this.keyframes[1];
 					trans.bind(this)(frame1,frame2);
 					iteration++;
 
-					var _this = this;
 					bindEvt(this.elem,"transitionend",function(evt){
-						if(_this.keyframes[iteration+1]){
-							var frame1 = _this.keyframes[iteration];
-							var frame2 = _this.keyframes[iteration+1];
+						if(self.keyframes[iteration+1]){
+							var frame1 = self.keyframes[iteration];
+							var frame2 = self.keyframes[iteration+1];
 
-							trans.bind(_this)(frame1,frame2);
+							trans.bind(self)(frame1,frame2);
 							iteration++;
 						}
 						else{
-							opt.onAnimationEnd && opt.onAnimationEnd();
+							self.events.animationEnd && self.events.animationEnd.bind(self)(evt);
 						}
 					});
 				}
@@ -368,30 +384,46 @@
 							iteration++;
 						}
 						else{
-							opt.onAnimationEnd && opt.onAnimationEnd();
+							self.events.animationEnd && self.events.animationEnd.bind(self)();
 						}
 					}
 
 					//initial state
 					setValue.bind(this)(0);
 
-					var _this = this;
+					//只有一个关键帧
+					if(this.keyframes.length==1){
+						var frame1 = this.keyframes[0];
+						if(frame1.point>0){
+							this.keyframes.unshift({point:0});
+						}
+					}
 					var maxDuration = frame2.point-frame1.point;
+					var pauseTime = 0;
 
 					var nextFrame = function(){
 						//IE10下这个timestamp是从浏览器加载到现在经过的毫秒数
 						var drawStart = performance.now?performance.now(): +new Date();
-						var pass = drawStart - startTime;
+						var pass = drawStart - startTime - pauseTime;
 
-						setValue.bind(_this)(pass/maxDuration);
+						setValue.bind(self)(pass/maxDuration);
 
 						if(pass < maxDuration){
-							if(!_this._needStop)
+							if(!self._needStop){
 								requestAnimationFrame(nextFrame);
+							}
+							else{
+								var pauseTimePoint = performance.now?performance.now(): +new Date();
+								pauseTime = 0;
+								self._continueFunc = function(){
+									pauseTime = (performance.now?performance.now(): +new Date()) - pauseTimePoint;
+									requestAnimationFrame(nextFrame);
+								}
+							}
 						}
 						else{
-							setValue.bind(_this)(-1);
-							animationEnd.bind(_this)();
+							setValue.bind(self)(-1);
+							animationEnd.bind(self)();
 						}
 					}
 					var startTime = performance.now?performance.now(): +new Date();
@@ -402,8 +434,8 @@
 				iteration++;
  			}
  			//优先使用指定的方法
- 			if(this.options.method){
- 				switch(this.options.method){
+ 			if(opt.method){
+ 				switch(opt.method){
  					case "animation":
  						if(this.options.animation){
  							aniFunction.bind(this)();
@@ -426,12 +458,12 @@
  				}
  			}
  			else{
- 				//默认方法的顺序为animation,transition,requestAnimationFrame,settimeout
-	 			if(this.options.animation){
-	 				aniFunction.bind(this)();
-	 			}
-	 			else if(this.options.transtion){
+ 				//默认方法的顺序为transition,animation,requestAnimationFrame,settimeout
+	 			if(this.options.transition){
 	 				transFunction.bind(this)();
+	 			}
+	 			else if(this.options.animation){
+	 				aniFunction.bind(this)();
 	 			}
 	 			else{
 	 				timeFunction.bind(this)();
@@ -450,14 +482,20 @@
 		 		var frame = this._getProperty(this.keyframes[i]);
 		 		for(var p in frame)
 					this.elem.style[p] = "";
-		 	}	
+		 	}
+		 	return this;
 		},
 
 		/**
  		 * 绑定事件
  		 */
  		on:function(event,cb){
- 			bindEvt(this.elem,event,cb);
+ 			if(event == "animationend"){
+ 				this.events.animationEnd = cb;
+ 			}
+ 			else{
+ 				bindEvt(this.elem,event,cb);
+ 			}
  			return this;
  		},
 
@@ -467,6 +505,7 @@
  		stop:function(){
  			this._needStop = true;
  			this._currentFrame = 0;
+ 			return this;
  		},
 
 		/**
@@ -475,6 +514,7 @@
  		 */
  		pause:function(){
  			this._needStop = true;
+ 			return this;
  		},
 
  		/**
@@ -482,8 +522,19 @@
  		 * 继续动画
  		 */
  		 continuePlay:function(){
- 		 	this._needStop = false;
- 		 	timeFunction.bind(this)();
+ 		 	if(this._needStop == true){
+ 		 		if(this._startOpt && this._startOpt.method == "time"){
+		 		 	this._needStop = false;
+		 		 	this._continueFunc && this._continueFunc();
+		 		 	this._continueFunc = null;
+	 		 	}
+	 		 	else{
+	 		 		this._needStop = false;
+	 		 		this.clear();
+	 		 		this.start();
+	 		 	}
+ 		 	}
+ 		 	return this;
  		 }
 
  	};
