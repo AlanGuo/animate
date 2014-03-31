@@ -174,6 +174,12 @@
 
         /**
          * 更换动画元素，动画本身不变
+         * @method setElement
+         * @param {HTMLElement} elem
+         * @return {Object} Animate
+         * @for Animate
+         * @example
+         * setElement.set(document.body);
          */
         setElement: function(elem) {
             this.elem = elem;
@@ -183,6 +189,9 @@
 
         /**
          * 得到动画相关属性
+         * @private
+         * @method _getProperty
+         * @for Animate
          */
         _getProperty: function(frame) {
             var obj = {};
@@ -194,22 +203,23 @@
         },
 
         /**
- 		 * 设置关键帧
- 		 * @param {Object} frames 关键帧
- 		 * @return {Animate} this 返回当前Animate对象
- 		 * @example
- 		 	obj.keyframe({point:0
-				left:0,
-				top:0,
-				ease:"linear"
- 		 	}).keyframe({point:10,
-				left:'-100px',
-				top:'-100px',
-				ease:"linear"
- 		 	})
-
- 		 	obj.keyframe([{point:0,x:0,y:0},{...}]);
- 		 */
+         * 设置关键帧
+         * @method keyframe
+         * @param {Object} frames 关键帧
+         * @return {Animate} this 返回当前Animate对象
+         * @for Animate
+         * @example
+         *	obj.keyframe({point:0
+         *		left:0,
+         *		top:0,
+         *		ease:"linear"
+         *	}).keyframe({point:10,
+         *		left:'-100px',
+         *		top:'-100px',
+         *		ease:"linear"
+         *	});
+         *	obj.keyframe([{point:0,x:0,y:0},{...}]);
+         */
         keyframe: function(frames) {
             this.keyframes = this.keyframes.concat(frames);
             return this;
@@ -230,6 +240,10 @@
 
         /**
          * 开始执行动画
+         * @method start
+         * @param {Object} opt
+         * @param {string} opt.timing 动画缓动策略
+         * @for Animate
          */
         start: function(opt) {
             var self = this;
@@ -491,6 +505,10 @@
 
         /**
          * 绑定事件
+         * @method on
+         * @param {string} event 事件名称
+         * @param {Function} cb 事件处理方法
+         * @for Animate
          */
         on: function(event, cb) {
             if (event == "animationend") {
