@@ -1,17 +1,16 @@
-{
+var data = {
     "project": {
-        "file": "animate-1.1.js",
+        "file": "/home/alan/animate/animate-1.1.js",
         "line": 1,
         "description": "简单的线性动画库，在UI上提供基础的DOM动画能力",
         "name": "Animate",
-        "subtitle": "v1.1",
         "download": "../animate-1.1.js",
-        "howto": "animate使用非常简单，你只需要添加关键帧，然后start就好了\n\n**举个例子**\n\n     <div id=\"aniDiv\" style=\"position:absolute\">动画实例</div>\n\n你有上面这样一个元素，想做一个曲线运动，那么js可以这么写\n\n     var ani = new window.Animate(document.getElementById(\"aniDiv\"));\n     ani.keyframe({point:0,left:\"0\",top:\"0\"})\n     .keyframe({point:500,left:\"100px\",top:\"100px\"})\n     .keyframe({point:1000,left:\"0px\",top:\"100px\"})\n     .start({timing:\"linear\"});\n\n用法灰常简单，大家可以尽情享用~",
+        "howto": "我我我我我\nalert()",
         "author": "alandlguo\n2013/06/06"
     },
     "files": {
-        "animate-1.1.js": {
-            "name": "animate-1.1.js",
+        "/home/alan/animate/animate-1.1.js": {
+            "name": "/home/alan/animate/animate-1.1.js",
             "modules": {},
             "classes": {
                 "Animate": 1
@@ -32,8 +31,8 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
-            "file": "animate-1.1.js",
-            "line": 116,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 102,
             "description": "动画类",
             "iphone_version": "8.9",
             "is_constructor": 1
@@ -41,56 +40,56 @@
     },
     "classitems": [
         {
-            "file": "animate-1.1.js",
-            "line": 129,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 115,
             "description": "系统关键字",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 135,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 121,
             "description": "事件",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 141,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 127,
             "description": "当前动画使用的方法",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 147,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 133,
             "description": "当前帧",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 153,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 139,
             "description": "用来控制暂停",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 159,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 145,
             "description": "初始化",
             "access": "private",
             "tagname": "",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 195,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 181,
             "description": "更换动画元素，动画本身不变",
             "itemtype": "method",
             "name": "setElement",
@@ -111,8 +110,8 @@
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 210,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 196,
             "description": "得到动画相关属性",
             "access": "private",
             "tagname": "",
@@ -121,8 +120,8 @@
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 225,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 211,
             "description": "设置关键帧",
             "itemtype": "method",
             "name": "keyframe",
@@ -138,19 +137,19 @@
                 "type": "Animate"
             },
             "example": [
-                "\nobj.keyframe({point:0\n\tleft:0,\n\ttop:0,\n\tease:\"linear\"\n}).keyframe({point:10,\n\tleft:'-100px',\n\ttop:'-100px',\n\tease:\"linear\"\n});\nobj.keyframe([{point:0,x:0,y:0},{...}]);"
+                "\n\tobj.keyframe({point:0\n\t\tleft:0,\n\t\ttop:0,\n\t\tease:\"linear\"\n\t}).keyframe({point:10,\n\t\tleft:'-100px',\n\t\ttop:'-100px',\n\t\tease:\"linear\"\n\t});\n\tobj.keyframe([{point:0,x:0,y:0},{...}]);"
             ],
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 248,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 234,
             "description": "重置动画对象，清空关键帧",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 261,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 247,
             "description": "开始执行动画",
             "itemtype": "method",
             "name": "start",
@@ -172,14 +171,14 @@
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 514,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 500,
             "description": "清除动画相关信息",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 527,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 513,
             "description": "绑定事件",
             "itemtype": "method",
             "name": "on",
@@ -198,20 +197,20 @@
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 543,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 529,
             "description": "停止动画，下次将从第一帧开始动画",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 552,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 538,
             "description": "只支持time动画方式\n暂停动画，下次将继续动画",
             "class": "Animate"
         },
         {
-            "file": "animate-1.1.js",
-            "line": 561,
+            "file": "/home/alan/animate/animate-1.1.js",
+            "line": 547,
             "description": "只支持time动画方式\n继续动画",
             "class": "Animate"
         }
@@ -219,67 +218,63 @@
     "warnings": [
         {
             "message": "unknown tag: name",
-            "line": " animate-1.1.js:1"
-        },
-        {
-            "message": "unknown tag: subtitle",
-            "line": " animate-1.1.js:1"
+            "line": " /home/alan/animate/animate-1.1.js:1"
         },
         {
             "message": "unknown tag: download",
-            "line": " animate-1.1.js:1"
+            "line": " /home/alan/animate/animate-1.1.js:1"
         },
         {
             "message": "unknown tag: howto",
-            "line": " animate-1.1.js:1"
+            "line": " /home/alan/animate/animate-1.1.js:1"
         },
         {
             "message": "unknown tag: support",
-            "line": " animate-1.1.js:261"
+            "line": " /home/alan/animate/animate-1.1.js:247"
         },
         {
             "message": "Missing item type\n系统关键字",
-            "line": " animate-1.1.js:129"
+            "line": " /home/alan/animate/animate-1.1.js:115"
         },
         {
             "message": "Missing item type\n事件",
-            "line": " animate-1.1.js:135"
+            "line": " /home/alan/animate/animate-1.1.js:121"
         },
         {
             "message": "Missing item type\n当前动画使用的方法",
-            "line": " animate-1.1.js:141"
+            "line": " /home/alan/animate/animate-1.1.js:127"
         },
         {
             "message": "Missing item type\n当前帧",
-            "line": " animate-1.1.js:147"
+            "line": " /home/alan/animate/animate-1.1.js:133"
         },
         {
             "message": "Missing item type\n用来控制暂停",
-            "line": " animate-1.1.js:153"
+            "line": " /home/alan/animate/animate-1.1.js:139"
         },
         {
             "message": "Missing item type\n初始化",
-            "line": " animate-1.1.js:159"
+            "line": " /home/alan/animate/animate-1.1.js:145"
         },
         {
             "message": "Missing item type\n重置动画对象，清空关键帧",
-            "line": " animate-1.1.js:248"
+            "line": " /home/alan/animate/animate-1.1.js:234"
         },
         {
             "message": "Missing item type\n清除动画相关信息",
-            "line": " animate-1.1.js:514"
+            "line": " /home/alan/animate/animate-1.1.js:500"
         },
         {
             "message": "Missing item type\n停止动画，下次将从第一帧开始动画",
-            "line": " animate-1.1.js:543"
+            "line": " /home/alan/animate/animate-1.1.js:529"
         },
         {
             "message": "Missing item type\n只支持time动画方式\n暂停动画，下次将继续动画",
-            "line": " animate-1.1.js:552"
+            "line": " /home/alan/animate/animate-1.1.js:538"
         },
         {
             "message": "Missing item type\n只支持time动画方式\n继续动画",
-            "line": " animate-1.1.js:561"
+            "line": " /home/alan/animate/animate-1.1.js:547"
         }
     ]
 }

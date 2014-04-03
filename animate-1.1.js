@@ -1,5 +1,25 @@
 /**
  * 简单的线性动画库，在UI上提供基础的DOM动画能力
+ * @project
+ * @name Animate
+ * @subtitle v1.1
+ * @download ../animate-1.1.js
+ * @howto
+ * animate使用非常简单，你只需要添加关键帧，然后start就好了
+ *
+ * **举个例子**
+ *
+ *      <div id="aniDiv" style="position:absolute">动画实例</div>
+ *
+ * 你有上面这样一个元素，想做一个曲线运动，那么js可以这么写
+ *
+ *      var ani = new window.Animate(document.getElementById("aniDiv"));
+ *      ani.keyframe({point:0,left:"0",top:"0"})
+ *      .keyframe({point:500,left:"100px",top:"100px"})
+ *      .keyframe({point:1000,left:"0px",top:"100px"})
+ *      .start({timing:"linear"});
+ *
+ * 用法灰常简单，大家可以尽情享用~
  * @author alandlguo
  * 2013/06/06
  */
@@ -175,7 +195,7 @@
         /**
          * 更换动画元素，动画本身不变
          * @method setElement
-         * @param {HTMLElement} elem
+         * @param {Dom} elem
          * @return {Object} Animate
          * @for Animate
          * @example
@@ -209,16 +229,16 @@
          * @return {Animate} this 返回当前Animate对象
          * @for Animate
          * @example
-         *	obj.keyframe({point:0
-         *		left:0,
-         *		top:0,
-         *		ease:"linear"
-         *	}).keyframe({point:10,
-         *		left:'-100px',
-         *		top:'-100px',
-         *		ease:"linear"
-         *	});
-         *	obj.keyframe([{point:0,x:0,y:0},{...}]);
+         * obj.keyframe({point:0
+         *	left:0,
+         *	top:0,
+         *	ease:"linear"
+         * }).keyframe({point:10,
+         *	left:'-100px',
+         *	top:'-100px',
+         *	ease:"linear"
+         * });
+         * obj.keyframe([{point:0,x:0,y:0},{...}]);
          */
         keyframe: function(frames) {
             this.keyframes = this.keyframes.concat(frames);
@@ -243,6 +263,7 @@
          * @method start
          * @param {Object} opt
          * @param {string} opt.timing 动画缓动策略
+         * @support ios:4.1,android:4.2
          * @for Animate
          */
         start: function(opt) {
@@ -492,6 +513,9 @@
 
         /**
          * 清除动画相关信息
+         * @method clear
+         * @return {Animate} this 返回animate对象
+         * @for Animate
          */
         clear: function() {
             //此方法用来清除动画加入的信息，使元素复位
@@ -521,6 +545,9 @@
 
         /**
          * 停止动画，下次将从第一帧开始动画
+         * @method stop
+         * @return {Animate} this 返回animate对象
+         * @for Animate
          */
         stop: function() {
             this._needStop = true;
@@ -531,6 +558,9 @@
         /**
          * 只支持time动画方式
          * 暂停动画，下次将继续动画
+         * @method pause
+         * @return {Animate} this 返回animate对象
+         * @for Animate
          */
         pause: function() {
             this._needStop = true;
@@ -540,6 +570,9 @@
         /**
          * 只支持time动画方式
          * 继续动画
+         * @method continuePlay
+         * @return {Animate} this 返回animate对象
+         * @for Animate
          */
         continuePlay: function() {
             if (this._needStop == true) {
