@@ -3,7 +3,29 @@
  * @project
  * @name Animate
  * @subtitle v1.1
- * @download ../animate-1.1.js
+ * @download http://115.29.195.88:86/animate-1.1.js
+ * @support ie,chrome,firefox
+ * @demo
+ * <div id="aniElem"></div>
+ * <style>
+ * #aniElem{
+ *  background:#f00;
+ *  width:100px;
+ *  height:100px;
+ *  position:absolute;
+ * }
+ * </style>
+ * <script type="application/javascript">
+ * var ani = new Animate()
+ * .setElement(document.getElementById("aniElem"))
+ * .keyframe([{point:0,
+ *  left:0,
+ *  top:0
+ * },{point:500,
+ *  left:'100px',
+ *  top:'100px'
+ *  }]).start();
+ * </script>
  * @howto
  * animate使用非常简单，你只需要添加关键帧，然后start就好了
  *
@@ -19,7 +41,7 @@
  *      .keyframe({point:1000,left:"0px",top:"100px"})
  *      .start({timing:"linear"});
  *
- * 用法灰常简单，大家可以尽情享用~
+ * 用法灰常简单，大家可以尽情享用，下面是个demo
  * @author alandlguo
  * 2013/06/06
  */
@@ -114,9 +136,8 @@
     document.getElementsByTagName("head")[0].appendChild(cssAnimation);
 
     /**
-     * 动画类
+     * Animate
      * @class Animate
-     * @iphone_version 8.9
      * @constructor
      */
     var Animate = function() {
@@ -197,9 +218,11 @@
          * @method setElement
          * @param {Dom} elem
          * @return {Object} Animate
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          * @example
-         * setElement.set(document.body);
+         * var ani = new Animate();
+         * ani.setElement(document.getElementById("aniElem"));
          */
         setElement: function(elem) {
             this.elem = elem;
@@ -211,6 +234,7 @@
          * 得到动画相关属性
          * @private
          * @method _getProperty
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         _getProperty: function(frame) {
@@ -227,18 +251,30 @@
          * @method keyframe
          * @param {Object} frames 关键帧
          * @return {Animate} this 返回当前Animate对象
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
-         * @example
-         * obj.keyframe({point:0
-         *	left:0,
-         *	top:0,
-         *	ease:"linear"
-         * }).keyframe({point:10,
-         *	left:'-100px',
-         *	top:'-100px',
-         *	ease:"linear"
-         * });
-         * obj.keyframe([{point:0,x:0,y:0},{...}]);
+         * @changelist 0.1:参数变更
+         * @examplerun
+         * <div id="aniElem"></div>
+         * <style>
+         * #aniElem{
+         *  background:#f00;
+         *  width:100px;
+         *  height:100px;
+         *  position:absolute;
+         * }
+         * </style>
+         * <script type="application/javascript">
+         * var ani = new Animate()
+         * .setElement(document.getElementById("aniElem"))
+         * .keyframe([{point:0,
+         *  left:0,
+         *  top:0
+         * },{point:500,
+         *  left:'100px',
+         *  top:'100px'
+         *  }]).start();
+         * </script>
          */
         keyframe: function(frames) {
             this.keyframes = this.keyframes.concat(frames);
@@ -263,8 +299,28 @@
          * @method start
          * @param {Object} opt
          * @param {string} opt.timing 动画缓动策略
-         * @support ios:4.1,android:4.2
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
+         * @examplerun
+         * <div id="aniElem"></div>
+         * <style>
+         * #aniElem{
+         *  background:#f00;
+         *  width:100px;
+         *  height:100px;
+         *  position:absolute;
+         * }
+         * </style>
+         * <script type="application/javascript">
+         * new window.Animate(document.getElementById("aniElem"))
+         * .keyframe([{point:0,
+         *  left:0,
+         *  top:0
+         * },{point:500,
+         *  left:'100px',
+         *  top:'100px'
+         *  }]).start();
+         * </script>
          */
         start: function(opt) {
             var self = this;
@@ -346,7 +402,7 @@
                             _this.elem.style[p] = secondFrame[p];
                         }
                         clearTimeout(time);
-                    }, 100)
+                    }, 100);
                 }
 
                 //只有一个关键帧
@@ -515,6 +571,7 @@
          * 清除动画相关信息
          * @method clear
          * @return {Animate} this 返回animate对象
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         clear: function() {
@@ -532,6 +589,8 @@
          * @method on
          * @param {string} event 事件名称
          * @param {Function} cb 事件处理方法
+         * @changelist 1.1:新增
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         on: function(event, cb) {
@@ -547,6 +606,7 @@
          * 停止动画，下次将从第一帧开始动画
          * @method stop
          * @return {Animate} this 返回animate对象
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         stop: function() {
@@ -560,6 +620,8 @@
          * 暂停动画，下次将继续动画
          * @method pause
          * @return {Animate} this 返回animate对象
+         * @changelist 1.1:新增
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         pause: function() {
@@ -572,6 +634,8 @@
          * 继续动画
          * @method continuePlay
          * @return {Animate} this 返回animate对象
+         * @changelist 1.1:新增
+         * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          */
         continuePlay: function() {
