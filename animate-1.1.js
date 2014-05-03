@@ -299,6 +299,7 @@
          * @method start
          * @param {Object} opt
          * @param {string} opt.timing 动画缓动策略
+         * @param {string} opt.accelerate 开启3d加速
          * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          * @examplerun
@@ -390,6 +391,10 @@
                     //set first transition
                     this.elem.style[prefixStyle("transitionProperty")] = property.join(",");
                     this.elem.style[prefixStyle("transitionTimingFunction")] = opt.timing;
+                    if (opt.accelerate) {
+                        //warning:保证你没有使用transform属性，3d加速会覆盖该属性
+                        this.elem.style[prefixStyle("transform")] = "translateZ(0)";
+                    }
 
                     //set second keyframe
                     //使用settimeout才能确保动画正常触发
