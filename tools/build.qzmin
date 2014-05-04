@@ -1,0 +1,14 @@
+{
+	projects: [	
+			{
+				name :  "animate.js",
+				target : "../release/animate-1.1.js",
+				compiler:"../release/animate-1.1.min.js",
+				template:[
+				],
+				include : [
+					"../src/animate.js"
+				]
+			}
+	]
+}
