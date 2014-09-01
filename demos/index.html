@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="alan">
+	<meta name="keywords" content="DOM动画">
+	<title>DOM动画</title>
+</head>
+<body>
+	<div id="anidiv_left_top" style="position:absolute;">动画示例(left,top)</div>
+	<div id="anidiv_transform" style="position:absolute;">动画示例(transform)</div>
+	<script type="text/javascript" src="../release/animate-1.1.js"></script>
+	<script type="text/javascript">
+		//动画1
+		var anidiv_left_top = new window.Animate(document.getElementById("anidiv_left_top"));
+		anidiv_left_top.keyframe({point:0,left:"0",top:"0"})
+						.keyframe({point:500,left:"0",top:"100px"})
+						.keyframe({point:1000,left:"100px",top:"100px"})
+						.keyframe({point:1500,left:"100px",top:"0"})
+						.keyframe({point:2000,left:"0",top:"0"})
+						.start({timing:"linear",repeat:2,method:'animation',delay:'2s',direction:'alternate'});
+
+		var anidiv_transform = new window.Animate(document.getElementById("anidiv_transform"));
+		anidiv_transform.keyframe({point:0,transform:"translate(150px,0)"})
+						.keyframe({point:500,transform:"translate(150px,100px)"})
+						.keyframe({point:1000,transform:"translate(250px,100px)"})
+						.keyframe({point:1500,transform:"translate(250px,0px)"})
+						.keyframe({point:2000,transform:"translate(150px,0px)"})
+						.start({timing:"linear",repeat:2,method:'transition',delay:'2s'});
+	</script>
+</body>
+</html>

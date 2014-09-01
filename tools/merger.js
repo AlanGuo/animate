@@ -12,6 +12,7 @@ var proc = require("child_process");
 var RELEASE_FILE = [];
 var PROCESS_MANAGER = [];
 var VERSION = "0.90";
+var CONFIG = null;
 var MSG;
 
 /**
@@ -56,36 +57,38 @@ var Map = function(dir, build) {
         //遍历工程
         _projects.forEach(function(item) {
 
-            _mainMap[item.target] = {};
-            _mainMap[item.target].include = that.getFileList(item.include);
-            _mainMap[item.target].template = that.getFileList(item.template);
+            if (item.target && item.include && item.include.length) {
+                _mainMap[item.target] = {};
+                _mainMap[item.target].include = that.getFileList(item.include);
+                _mainMap[item.target].template = that.getFileList(item.template);
 
-            //一个文件可能在多个工程中被使用
-            _mainMap[item.target].include.forEach(function(_item) {
-                _fileMap[_item] = _fileMap[_item] || {
-                    target: [],
-                    time: +fs.statSync(that.getRealPath(_item)).mtime,
-                    type: 'js'
-                };
-                _fileMap[_item].target.push(item.target);
-            });
+                //一个文件可能在多个工程中被使用
+                _mainMap[item.target].include.forEach(function(_item) {
+                    _fileMap[_item] = _fileMap[_item] || {
+                        target: [],
+                        time: +fs.statSync(that.getRealPath(_item)).mtime,
+                        type: 'js'
+                    };
+                    _fileMap[_item].target.push(item.target);
+                });
 
-            _mainMap[item.target].template.forEach(function(_item) {
-                _fileMap[_item] = _fileMap[_item] || {
-                    target: [],
-                    time: +fs.statSync(that.getRealPath(_item)).mtime,
-                    type: 'tmpl'
-                };
-                _fileMap[_item].target.push(item.target);
-                that.initTemp(_item, [item.target]);
-            });
+                _mainMap[item.target].template.forEach(function(_item) {
+                    _fileMap[_item] = _fileMap[_item] || {
+                        target: [],
+                        time: +fs.statSync(that.getRealPath(_item)).mtime,
+                        type: 'tmpl'
+                    };
+                    _fileMap[_item].target.push(item.target);
+                    that.initTemp(_item, [item.target]);
+                });
 
-            RELEASE_FILE.push({
-                compiler: that.getRealPath(item.compiler || item.target),
-                publish: item.publish ? that.getRealPath(item.publish) : '',
-                src: that.getRealPath(item.target)
-            });
-        })
+                RELEASE_FILE.push({
+                    compiler: that.getRealPath(item.compiler || item.target),
+                    publish: item.publish ? that.getRealPath(item.publish) : '',
+                    src: that.getRealPath(item.target)
+                });
+            }
+        });
 
 
 
@@ -201,24 +204,39 @@ var Map = function(dir, build) {
             var tmp = {}, i = 0;
 
             for (var p in _tmplMap[item]) {
+
                 var n = p.replace(/\./g, "\\.");
-                var r = new RegExp("\\/\\*<" + n + ">\\*\\/(.*?)\\/\\*<\\/" + n + ">\\*\\/", 'g')
+                var r = new RegExp("\\/\\*<" + n + ">\\*\\/(.*?)\\/\\*<\\/" + n + ">\\*\\/", 'g');
+
+                //保存已经替换过的，防止重复替换
                 codes = codes.replace(r, function(match) {
                     i++;
                     tmp[i] = "/*<" + p + ">*/'" + _tmplMap[item][p] + "'/*</" + p + ">*/";
                     return '<@' + i + '@>';
                 });
-                codes = codes.replace(new RegExp(p.replace(/\./g, "\\."), 'g'), function(match) {
+                //替换
+                codes = codes.replace(new RegExp("\\b" + n + "\\b", 'g'), function(match) {
+
                     i++;
                     tmp[i] = "/*<" + p + ">*/'" + _tmplMap[item][p] + "'/*</" + p + ">*/";
                     return '<@' + i + '@>';
                 });
+                //把替换过的还原
                 codes = codes.replace(/<@(\d+)@>/g, function(match, i) {
                     return tmp[i];
                 });
             }
 
-
+            //这里判断fileName是否存在，如果目录不完整，则创建完整新的目录
+            var dirs = fileName.split(path.sep);
+            var root = dirs[0];
+            var stepdir = "" + root;
+            for (var i = 1; i < dirs.length - 1; i++) {
+                stepdir += path.sep + dirs[i];
+                if (!fs.existsSync(stepdir)) {
+                    fs.mkdirSync(stepdir);
+                }
+            }
             fs.writeFileSync(fileName, codes);
 
             MSG.log("文件合并完成：" + path.normalize(fileName));
@@ -237,7 +255,8 @@ var merger = function(dir) {
     var buildFile = dir + '/' + BUILD_FILE;
     fs.exists(buildFile, function(exists) {
         exists && fs.readFile(buildFile, function(err, data) {
-            new Map(dir, eval('(' + data + ')'));
+            CONFIG = eval('(' + data + ')');
+            new Map(dir, CONFIG);
         });
     });
     fs.readdir(dir, function(err, files) {
@@ -287,6 +306,16 @@ var publish = function() {
             if (err) {
                 MSG.log("源文件读取失败：" + err.message, 1);
             } else if (item.publish) {
+                //这里判断fileName是否存在，如果目录不完整，则创建完整新的目录
+                var dirs = item.publish.split(path.sep);
+                var root = dirs[0];
+                var stepdir = "" + root;
+                for (var i = 1; i < dirs.length - 1; i++) {
+                    stepdir += "\\" + dirs[i];
+                    if (!fs.existsSync(stepdir)) {
+                        fs.mkdirSync(stepdir);
+                    }
+                }
                 fs.writeFile(item.publish, data + "", function(err) {
                     if (err) {
                         MSG.log("文件发布失败：" + err.message, 1);
@@ -329,9 +358,66 @@ var command = {
     'help': function() {
         MSG.log("******************")
         MSG.log("gcc\t\t压缩目标文件")
+        MSG.log("create\t\t自动创建工程目录 -r 根目录 -t 类型")
         MSG.log("reset\t\t重启")
         MSG.log("publish\t发布目标文件")
         MSG.log("version\t获取版本号")
+    },
+    'create': function() {
+        var args = arguments;
+        var type = null;
+        var root = null;
+        for (var i = 0; i < args.length; i++) {
+            var item = args[i];
+            if (item === "-t") {
+                type = args[i + 1];
+            }
+            if (item === "-r") {
+                root = args[i + 1];
+            }
+        };
+        folder.init({
+            type: type,
+            root: root
+        });
+    }
+};
+
+
+//folder
+
+var folder = {
+    init: function(folder) {
+        if (folder) {
+            var root = path.resolve(folder.root || ROOT_DIR);
+            folder.type = folder.type || "app";
+            var folders = [];
+
+            if (folder.type === "lib") {
+                folders = ["src", "release", "test", "demo"];
+            } else if (folder.type === "app") {
+                folders = ["src", "release", "test", "assets", "assets" + path.sep + "scripts", "assets" + path.sep + "styles", "assets" + path.sep + "imgs", "backend"];
+            }
+            //创建目录
+            for (var j = 0; j < folders.length; j++) {
+                var dirs = folders[j].split(path.sep);
+                var base = root + path.sep + dirs[0];
+                var stepdir = "" + base;
+
+                if (!fs.existsSync(stepdir)) {
+                    fs.mkdirSync(stepdir);
+                }
+                for (var k = 1; k < dirs.length; k++) {
+                    stepdir += path.sep + dirs[k];
+                    if (!fs.existsSync(stepdir)) {
+                        fs.mkdirSync(stepdir);
+                    }
+                }
+            }
+            MSG.log("目录创建成功");
+        } else {
+            MSG.log("未找到配置文件");
+        }
     }
 };
 
@@ -344,8 +430,6 @@ var command = {
 
     MSG.hello(ROOT_DIR);
     merger(ROOT_DIR);
-
-
 
     process.stdin.resume();
     process.stdin.setEncoding('utf8');

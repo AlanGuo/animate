@@ -50,10 +50,8 @@
 (function(exports) {
     //检测浏览器引擎
     var unid = 0;
-    var vendors = 't,webkitT,MozT,msT,OT'.split(',');
-    var vendorsCSS = 't,-webkit-t,-moz-t,-ms-t,-o-t'.split(',');
     var performance = window.performance || {};
-
+    //bind fix
     if (!Function.bind) {
         Function.prototype.bind = function() {
             var __method = this;
@@ -67,35 +65,64 @@
         };
     }
 
-    var judge = function(vendors) {
-        var dummyStyle = document.createElement('div').style;
-        var v = 't,webkitT,MozT,msT,OT'.split(','),
-            t,
-            i = 0,
-            l = vendors.length;
+    var createJudgeFunc = function(vendor) {
+        return function(){
+            var dummyStyle = document.createElement('div').style;
+            var v = vendor.prefix.split(','),
+                t,
+                i = 0,
+                l = v.length;
 
-        for (; i < l; i++) {
-            t = v[i] + 'ransform';
-            if (t in dummyStyle) {
-                return vendors[i].substr(0, vendors[i].length - 1);
+            for (; i < l; i++) {
+                t = v[i] + vendor.words;
+                if (t in dummyStyle) {
+                    return v[i].substr(0, v[i].length - 1);
+                }
             }
-        }
 
-        return false;
+            return false;
+        }
     }
     //前缀
-    var prefixStyle = function(style) {
-        var vendor = judge(vendors);
+    var prefixStyle = function(style,judgeFunc) {
+        var vendor = judgeFunc();
         if (vendor === '') return style;
         style = style.charAt(0).toUpperCase() + style.substr(1);
         return vendor + style;
     }
-    var prefixCSS = function(style) {
-        var vendor = judge(vendorsCSS);
+    var prefixCSS = function(style,judgeFunc) {
+        var vendor = judgeFunc();
         if (vendor === '') return style;
         style = style.charAt(0) + style.substr(1);
         return vendor + style;
     }
+
+    //judgeFunc 定义
+    var requestAnimationFramejudgeFunc = createJudgeFunc({
+        prefix:'r,webkitR,MozR,msR,OR',
+        words:'equestAnimationFrame'
+    });
+
+    var transformJudgeFunc =  createJudgeFunc({
+        prefix:'t,webkitT,MozT,msT,OT',
+        words:'ransform'
+    });
+
+    var transitionJudgeFunc = createJudgeFunc({
+        prefix:'t,webkitT,MozT,msT,OT',
+        words:'ransition'
+    });
+
+    var animateJudgeFunc = createJudgeFunc({
+        prefix:'a,webkitA,MozA,msA,OA',
+        words:'nimation'
+    });
+
+    var animateCSSJudgeFunc = createJudgeFunc({
+        prefix:'a,-webkit-a,-moz-a,-ms-a,-o-a',
+        words:'nimation'
+    });
+
 
     var bindEvt = function(elem, event, handler) {
         if (elem.addEventListener) {
@@ -125,10 +152,7 @@
         }
     }
 
-    var requestAnimationFrame = window[prefixStyle("requestAnimationFrame")] ||
-            function(callback) {
-                setTimeout(callback, 17)
-        };
+    var requestAnimationFrame = window[prefixStyle("requestAnimationFrame",requestAnimationFramejudgeFunc)] || function(callback) {setTimeout(callback, 17)};
 
     //全局唯一的style标签
     var cssAnimation = document.createElement('style');
@@ -198,9 +222,9 @@
             //requestNextFrame 支持
             //setTimeout
             var dummyStyle = document.createElement("div").style;
-            var transform = prefixStyle("transform");
-            var transition = prefixStyle("transition");
-            var animation = prefixStyle("animation");
+            var transform = prefixStyle("transform",transformJudgeFunc);
+            var transition = prefixStyle("transition",transitionJudgeFunc);
+            var animation = prefixStyle("animation",animateJudgeFunc);
             //if(transform in dummyStyle) this.options.transform = true;
             if (transition in dummyStyle) this.options.transition = true;
             if (animation in dummyStyle) this.options.animation = true;
@@ -287,13 +311,12 @@
          */
         reset: function() {
             this.keyframes = [];
-            this.elem.style[prefixStyle("animation")] = "";
-            this.elem.style[prefixStyle("transitionProperty")] = "";
-            this.elem.style[prefixStyle("transitionTimingFunction")] = "";
-            this.elem.style[prefixStyle("transitionDuration")] = "";
+            this.elem.style[prefixStyle("animation",animateJudgeFunc)] = "";
+            this.elem.style[prefixStyle("transitionProperty",transitionJudgeFunc)] = "";
+            this.elem.style[prefixStyle("transitionTimingFunction",transitionJudgeFunc)] = "";
+            this.elem.style[prefixStyle("transitionDuration",transitionJudgeFunc)] = "";
             return this;
         },
-
 
         /**
          * 开始执行动画
@@ -301,6 +324,10 @@
          * @param {Object} opt
          * @param {string} opt.timing 动画缓动策略
          * @param {string} opt.accelerate 开启3d加速
+         * @param {method} opt.method 动画方式 'animation','transition','time'
+         * @param {string} opt.repeat 循环次数,'infinite'表示无限循环
+         * @param {string} opt.direction 动画方向(method:'animation'支持)
+         * @param {string} opt.delay 延时时间 e.g. 2s
          * @support ie:>=6,chrome:all,firefox:all
          * @for Animate
          * @examplerun
@@ -330,6 +357,7 @@
                 timing: "linear"
             }, opt);
             this._startOpt = opt;
+            this._startOpt.repeat = this._startOpt.repeat * 1;
 
             var object2String = function(obj) {
                 var str = "{",
@@ -350,19 +378,33 @@
                     aniString += Math.round(f.point / duration * 100) + '% ' + object2String(this._getProperty(f));
                 }
                 aniString += "}";
-                var data = '@' + prefixCSS("keyframes") + " " + keyFrameName + aniString;
+                var data = '@' + prefixCSS("keyframes",animateCSSJudgeFunc) + " " + keyFrameName + aniString;
                 if (data != this.keyframeElement.data) {
                     this.keyframeElement.data = data;
                 }
-                this.elem.style[prefixStyle("animation")] = keyFrameName + " " + duration + "ms " + opt.timing;
+                this.elem.style[prefixStyle("animation",animateJudgeFunc)] = keyFrameName + " " + duration + "ms " + opt.timing;
 
                 //set lastframe
                 var lastFrame = this._getProperty(this.keyframes[this.keyframes.length - 1]);
-                for (var p in lastFrame)
+                for (var p in lastFrame){
                     this.elem.style[p] = lastFrame[p];
+                }
+
+                //重复动画
+                if(this._startOpt.repeat){
+                    this.elem.style[prefixStyle("animationIterationCount",animateJudgeFunc)] = this._startOpt.repeat;
+                }
+                //延时
+                if(this._startOpt.delay){
+                    this.elem.style[prefixStyle("animationDelay",animateJudgeFunc)] = this._startOpt.delay;
+                }
+                //direction
+                if(this._startOpt.direction){
+                    this.elem.style[prefixStyle("animationDirection",animateJudgeFunc)] = this._startOpt.direction;
+                }
 
                 //结束事件
-                bindEvt(this.elem, prefixStyle("animationEnd"), function(evt) {
+                bindEvt(this.elem, prefixStyle("animationEnd",animateJudgeFunc), function(evt) {
                     self.events.animationEnd && self.events.animationEnd.bind(self)(evt);
                 });
             }
@@ -381,7 +423,7 @@
                         }
                     }
 
-                    this.elem.style[prefixStyle("transitionDuration")] = 0;
+                    this.elem.style[prefixStyle("transitionDuration",transitionJudgeFunc)] = 0;
 
                     //set first keyframe
                     var firstFrame = this._getProperty(frame1);
@@ -390,25 +432,23 @@
                     }
 
                     //set first transition
-                    this.elem.style[prefixStyle("transitionProperty")] = property.join(",");
-                    this.elem.style[prefixStyle("transitionTimingFunction")] = opt.timing;
+                    this.elem.style[prefixStyle("transitionProperty",transitionJudgeFunc)] = property.join(",");
+                    this.elem.style[prefixStyle("transitionTimingFunction",transitionJudgeFunc)] = opt.timing;
                     if (opt.accelerate) {
                         //warning:保证你没有使用transform属性，3d加速会覆盖该属性
-                        this.elem.style[prefixStyle("transform")] = "translateZ(0)";
+                        this.elem.style[prefixStyle("transform",transformJudgeFunc)] = "translateZ(0)";
                     }
 
                     //set second keyframe
-                    //使用settimeout才能确保动画正常触发
-                    var _this = this;
-                    var time = setTimeout(function() {
-                        _this.elem.style[prefixStyle("transitionDuration")] = (frame2.point - frame1.point) / 1000 + "s";
-
-                        var secondFrame = _this._getProperty(frame2);
-                        for (var p in secondFrame) {
-                            _this.elem.style[p] = secondFrame[p];
-                        }
-                        clearTimeout(time);
-                    }, 100);
+                    //wait a frame
+                    this.elem.offsetWidth;
+                    
+                    this.elem.style[prefixStyle("transitionDuration",transitionJudgeFunc)] = (frame2.point - frame1.point) / 1000 + "s";
+  
+                    var secondFrame = this._getProperty(frame2);
+                    for (var p in secondFrame) {
+                        this.elem.style[p] = secondFrame[p];
+                    }
                 }
 
                 //只有一个关键帧
@@ -423,17 +463,36 @@
                 if (this.keyframes.length > 1) {
                     var frame1 = this.keyframes[0];
                     var frame2 = this.keyframes[1];
+
+                    var styleText = prefixStyle("transitionDelay",transitionJudgeFunc);
+
                     trans.bind(this)(frame1, frame2);
+                    //延时
+                    if(self._startOpt.delay){
+                        self.elem.style[styleText] = self._startOpt.delay;
+                    }
+
                     iteration++;
 
                     bindEvt(this.elem, "transitionend", function(evt) {
+                        if(!self.keyframes[iteration + 1] && self._startOpt.repeat>1) {
+                            iteration = 0;
+                            if(/number/i.test(typeof self._startOpt.repeat)){
+                                self._startOpt.repeat --;
+                            }
+                        }
                         if (self.keyframes[iteration + 1]) {
                             var frame1 = self.keyframes[iteration];
                             var frame2 = self.keyframes[iteration + 1];
 
+
+                            if(self.elem.style[styleText]!==0){
+                                self.elem.style[styleText] = 0;
+                            }
+
                             trans.bind(self)(frame1, frame2);
                             iteration++;
-                        } else {
+                        } else{
                             self.events.animationEnd && self.events.animationEnd.bind(self)(evt);
                         }
                     });
@@ -442,6 +501,8 @@
             //only support numbers
             var timeFunction = function() {
                 var iteration = 0;
+                var delaynum = this._startOpt.delay.replace(/[^\.\d]/g,'')*1;
+
                 var trans = function(frame1, frame2) {
                     var property = [];
                     var interval = [];
@@ -488,6 +549,12 @@
                         if (this.keyframes[iteration + 1]) {
                             trans.bind(this)(this.keyframes[iteration], this.keyframes[iteration + 1]);
                             iteration++;
+                        } else if(this._startOpt.repeat > 1){
+                            if(/number/i.test(typeof this._startOpt.repeat)){
+                                this._startOpt.repeat--;
+                                iteration = 0;
+                                animationEnd.call(this);
+                            } 
                         } else {
                             self.events.animationEnd && self.events.animationEnd.bind(self)();
                         }
@@ -531,8 +598,28 @@
                             animationEnd.bind(self)();
                         }
                     }
-                    var startTime = performance.now ? performance.now() : +new Date();
-                    requestAnimationFrame(nextFrame);
+
+                    var startTime = 0;
+
+                    //延时
+                    if(this._startOpt.delay && !this._isDelayed){
+                        if(performance.now){
+                            startTime = performance.now() + delaynum*1000;
+                        }
+                        else{
+                            var d = new Date();
+                            startTime = +d.setMilliseconds(d.getMilliseconds()+delaynum*1000);
+                        }  
+                        
+                        setTimeout(function(){
+                            self._isDelayed = true;
+                            requestAnimationFrame(nextFrame);
+                        },delaynum*1000);
+                    }
+                    else{
+                        startTime = performance.now ? performance.now() : +new Date();
+                        requestAnimationFrame(nextFrame);
+                    }
                 }
                 this._currentFrame = iteration;
                 trans.bind(this)(this.keyframes[iteration], this.keyframes[iteration + 1]);
