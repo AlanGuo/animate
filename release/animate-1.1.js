@@ -3,8 +3,8 @@
  * @project
  * @name Animate
  * @subtitle v1.1
- * @download http://115.29.195.88:86/release/animate-1.1.js
- * @uncompressdownload http://115.29.195.88:86/release/animate-1.1.min.js
+ * @download http://115.29.195.88:86/release/animate-1.1.min.js
+ * @uncompressdownload http://115.29.195.88:86/release/animate-1.1.js
  * @support ie,chrome,firefox
  * @demo
  * <div id="aniElem"></div>
