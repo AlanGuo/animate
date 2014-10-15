@@ -18,7 +18,7 @@
 						.keyframe({point:1000,left:"100px",top:"100px"})
 						.keyframe({point:1500,left:"100px",top:"0"})
 						.keyframe({point:2000,left:"0",top:"0"})
-						.start({timing:"linear",repeat:2,method:'animation',delay:'2s',direction:'alternate'});
+						.start({timing:"linear",repeat:2,method:'animation',delay:'2s',direction:'alternate'}).on('animationend',function(){alert('animateion end')});
 
 		var anidiv_transform = new window.Animate(document.getElementById("anidiv_transform"));
 		anidiv_transform.keyframe({point:0,transform:"translate(150px,0)"})
@@ -26,7 +26,7 @@
 						.keyframe({point:1000,transform:"translate(250px,100px)"})
 						.keyframe({point:1500,transform:"translate(250px,0px)"})
 						.keyframe({point:2000,transform:"translate(150px,0px)"})
-						.start({timing:"linear",repeat:2,method:'transition',delay:'2s'});
+						.start({timing:"linear",repeat:2,method:'transition',delay:'2s'}).on('animationend',function(){alert('transition end')});
 	</script>
 </body>
 </html>

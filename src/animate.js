@@ -306,6 +306,15 @@
             return this;
         },
 
+
+        /**
+         * 清空关键帧
+         */
+        resetKeyFrames: function() {
+            this.keyframes = [];
+            return this;
+        },
+
         /**
          * 重置动画对象，清空关键帧
          */
@@ -357,7 +366,9 @@
                 timing: "linear"
             }, opt);
             this._startOpt = opt;
+            if(this._startOpt.repeat == null) {this._startOpt.repeat = 1;}
             this._startOpt.repeat = this._startOpt.repeat * 1;
+            this._startOpt.delay = this._startOpt.delay || "0s";
 
             var object2String = function(obj) {
                 var str = "{",
@@ -474,7 +485,7 @@
 
                     iteration++;
 
-                    bindEvt(this.elem, "transitionend", function(evt) {
+                    bindEvt(this.elem, prefixStyle("transitionend",transitionJudgeFunc), function(evt) {
                         if(!self.keyframes[iteration + 1] && self._startOpt.repeat>1) {
                             iteration = 0;
                             if(/number/i.test(typeof self._startOpt.repeat)){
@@ -501,7 +512,7 @@
             //only support numbers
             var timeFunction = function() {
                 var iteration = 0;
-                var delaynum = this._startOpt.delay.replace(/[^\.\d]/g,'')*1;
+                var delaynum = this._startOpt.delay.replace?this._startOpt.delay.replace(/[^\.\d]/g,'')*1:this._startOpt.delay;
 
                 var trans = function(frame1, frame2) {
                     var property = [];
@@ -511,10 +522,15 @@
                     //取两帧的共有属性
                     var prop1 = this._getProperty(frame1);
                     var prop2 = this._getProperty(frame2);
+
                     for (var p in prop1) {
                         if (prop2[p] != null) {
-                            var start = parseFloat(prop1[p].toString().replace(/[^\d+-]/g, ""));
-                            var end = parseFloat(prop2[p].toString().replace(/[^\d+-]/g, ""));
+                            if(/[\(\)]/.test(prop1[p])){
+                                console.error('time模式不支持这种样式:'+prop1[p]+'，请使用animation或者transition模式');
+                                return;
+                            }
+                            var start = parseFloat(prop1[p].toString().replace(/[^\d+]/g, ""));
+                            var end = parseFloat(prop2[p].toString().replace(/[^\d+]/g, ""));
                             property.push({
                                 prop: p,
                                 start: start,
@@ -632,14 +648,14 @@
                         if (this.options.animation) {
                             aniFunction.bind(this)();
                         } else {
-                            console.log("your browser does not support animation method.");
+                            console.error("your browser does not support animation method.");
                         }
                         break;
                     case "transition":
                         if (this.options.transition) {
                             transFunction.bind(this)();
                         } else {
-                            console.log("your browser does not support transition method.");
+                            console.error("your browser does not support transition method.");
                         }
                         break;
                     case "time":
